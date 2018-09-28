@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Board">
+	<!-- 글목록 쿼리 -->
+	<select id="freeboardForm" resultType="board">
+		SELECT * FROM Board order by board_num
+	</select>
+
+	<!-- 글쓰기 쿼리 -->
+	<insert id="boardwrite" parameterType="board" useGeneratedKeys="true" keyProperty="Board_Num">
+		INSERT INTO BOARD VALUES(BOARD_SEQ.nextval, #{Board_Password}, #{Board_Type}, #{Board_Title}, #{Board_Content}, #{Board_FileName}, 0, sysdate)
+		<selectKey keyProperty="Board_Num" resultType="int" order="AFTER">
+			SELECT BOARD_SEQ.CURRVAL FROM DUAL
+		</selectKey>
+	</insert>
+
+	<!-- 조회수 증가 쿼리 -->
+	<update id="increaseHit" parameterType="int">
+		UPDATE BOARD SET Board_Hit = Board_Hit+1 WHERE Board_Num = #{Board_Num}
+	</update>
+
+	<!-- 글 상세보기 쿼리 -->
+	<select id="boardview" parameterType="int" resultType="board">
+		SELECT * FROM BOARD WHERE Board_Num=#{Board_Num}
+	</select>
+
+	<!-- 글 수정하기 쿼리 -->
+	<select id="boardmodify" parameterType="int" resultType="board">
+		SELECT * FROM BOARD WHERE Board_Num=#{Board_Num}
+	</select>
+
+	<!-- 글 수정 업데이트 -->
+	<update id="boardmodify1" parameterType="board">
+		UPDATE BOARD SET Board_Title=#{Board_Title}, Board_Content=#{Board_Content}, Board_FileName=#{Board_FileName} WHERE Board_Num=#{Board_Num}
+	</update>
+
+	<!-- 글 삭제하기 쿼리 -->
+	<delete id="boarddelete" parameterType="int">
+		DELETE FROM BOARD WHERE Board_Num=#{Board_Num}
+	</delete>
+	
+	<!-- 카운트 -->
+	<select id="getListCount" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM BOARD
+	</select>
+	
+	<!-- 짜르게 -->
+	<select id="getRead" parameterType="board" resultType="board">
+		select * from(select Board_Num, rownum as rnum from(select board_num from board))r1, board r2 where r1.Board_Num = r2.Board_Num and rnum between 1 and 5 order by r2.Board_Date
+	</select>
+	
+</mapper>
